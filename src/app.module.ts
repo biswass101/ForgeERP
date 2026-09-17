@@ -20,18 +20,20 @@ import { ReportingModule } from './modules/reporting/reporting.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
 import { HealthModule } from './health/health.module.js';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration.js';
+import databaseConfiguration from './config/database.config.js';
+import { DatabaseModule } from './infrastructure/database/prisma.module.js';
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'forge-erp',
+   
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      load: [configuration, databaseConfiguration],
     }),
+    DatabaseModule,
     IamModule,
     OrganizationModule,
     MerchandisingModule,
