@@ -11,3 +11,2306 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum user_status_enum {
+  active
+  inactive
+  locked
+}
+
+enum style_status_enum {
+  draft
+  costed
+  approved
+  active
+  discontinued
+}
+
+enum sample_type_enum {
+  proto
+  fit
+  pp
+  shipment_photo
+}
+
+enum decision_status_enum {
+  pending
+  approved
+  rejected
+  revise
+}
+
+enum order_status_enum {
+  draft
+  confirmed
+  in_production
+  partially_shipped
+  shipped
+  closed
+  cancelled
+}
+
+enum milestone_status_enum {
+  pending
+  at_risk
+  delayed
+  completed
+}
+
+enum scan_type_enum {
+  in
+  out
+}
+
+enum inspection_result_enum {
+  pass
+  fail
+}
+
+enum severity_enum {
+  critical
+  major
+  minor
+}
+
+enum movement_direction_enum {
+  in
+  out
+}
+
+enum movement_type_enum {
+  receipt
+  issue
+  transfer
+  adjustment
+}
+
+enum costing_method_enum {
+  fifo
+  weighted_average
+}
+
+enum po_status_enum {
+  draft
+  sent
+  partially_received
+  received
+  closed
+  cancelled
+}
+
+enum match_status_enum {
+  pending
+  matched
+  discrepancy
+  approved
+}
+
+enum ap_ar_status_enum {
+  open
+  partially_paid
+  paid
+  overdue
+}
+
+enum shipment_status_enum {
+  booked
+  loaded
+  shipped
+  delivered
+  cancelled
+}
+
+enum payroll_status_enum {
+  draft
+  processing
+  approved
+  paid
+}
+
+enum wage_type_enum {
+  monthly
+  daily
+  piece_rate
+}
+
+enum leave_status_enum {
+  pending
+  approved
+  rejected
+  cancelled
+}
+
+enum cap_status_enum {
+  open
+  in_progress
+  closed
+  overdue
+}
+
+enum approval_status_enum {
+  pending
+  approved
+  rejected
+}
+
+enum material_type_enum {
+  fabric
+  trim
+}
+
+enum stock_item_type_enum {
+  fabric
+  trim
+  finished_good
+}
+
+enum account_type_enum {
+  asset
+  liability
+  equity
+  income
+  expense
+}
+
+enum journal_source_enum {
+  sales_invoice
+  supplier_invoice
+  payroll
+  stock_adjustment
+  manual
+}
+
+enum journal_status_enum {
+  draft
+  posted
+  reversed
+}
+
+enum attendance_status_enum {
+  present
+  absent
+  leave
+  holiday
+  weekend
+}
+
+enum attendance_source_enum {
+  manual
+  biometric
+  rfid
+}
+
+enum supplier_type_enum {
+  local
+  import
+}
+
+enum warehouse_type_enum {
+  rm
+  wip
+  fg
+  other
+}
+
+enum component_type_enum {
+  earning
+  deduction
+}
+
+enum payment_type_enum {
+  payable
+  receivable
+}
+
+enum party_type_enum {
+  supplier
+  buyer
+}
+
+enum requisition_source_enum {
+  mrp
+  manual
+}
+
+enum inspection_stage_enum {
+  inline
+  endline
+  aql_final
+}
+
+enum offset_reference_enum {
+  order_confirmation
+  ship_date
+}
+
+enum transfer_status_enum {
+  in_transit
+  received
+  cancelled
+}
+
+enum rework_status_enum {
+  pending
+  in_progress
+  completed
+  scrapped
+}
+
+model tenants {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name String @db.VarChar(200)
+
+  slug String @unique @db.VarChar(100)
+
+  subscription_plan String @default("standard") @db.VarChar(50)
+
+  status user_status_enum @default(active)
+
+  default_locale String @default("en") @db.VarChar(10)
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  updated_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  companies              companies[]
+  users                  users[]
+  roles                  roles[]
+  branches               branches[]               @relation("BranchTenant")
+  factories              factories[]              @relation("FactoryTenant")
+  departments            departments[]            @relation("DepartmentTenant")
+  sessions               sessions[]               @relation("SessionTenant")
+  audit_logs             audit_logs[]             @relation("AuditTenant")
+  buyers                 buyers[]                 @relation("BuyerTenant")
+  styles                 styles[]                 @relation("StyleTenant")
+  sales_orders           sales_orders[]           @relation("OrderTenant")
+  tna_templates          tna_templates[]          @relation("TnaTemplateTenant")
+  units_of_measure       units_of_measure[]       @relation("UomTenant")
+  fabrics                fabrics[]                @relation("FabricTenant")
+  trims                  trims[]                  @relation("TrimTenant")
+  production_lines       production_lines[]       @relation("ProductionLineTenant")
+  daily_production_plans daily_production_plans[] @relation("DailyPlanTenant")
+  fabric_issues          fabric_issues[]          @relation("FabricIssueTenant")
+  bundle_scans           bundle_scans[]           @relation("BundleScanTenant")
+  downtime_reasons       downtime_reasons[]       @relation("DowntimeReasonTenant")
+  defect_codes           defect_codes[]           @relation("DefectCodeTenant")
+  inline_inspections     inline_inspections[]     @relation("InlineInspectionTenant")
+  endline_inspections    endline_inspections[]    @relation("EndlineInspectionTenant")
+  aql_sampling_plans     aql_sampling_plans[]     @relation("AqlPlanTenant")
+  aql_inspection_reports aql_inspection_reports[] @relation("AqlReportTenant")
+  rework_orders          rework_orders[]          @relation("ReworkTenant")
+  warehouses             warehouses[]             @relation("WarehouseTenant")
+  stock_items            stock_items[]            @relation("StockItemTenant")
+  stock_movements        stock_movements[]        @relation("StockMovementTenant")
+  stock_transfers        stock_transfers[]        @relation("StockTransferTenant")
+  stock_adjustments      stock_adjustments[]      @relation("StockAdjustmentTenant")
+  suppliers              suppliers[]              @relation("SupplierTenant")
+  purchase_requisitions  purchase_requisitions[]  @relation("PurchaseRequisitionTenant")
+  purchase_orders        purchase_orders[]        @relation("PurchaseOrderTenant")
+  goods_receipt_notes    goods_receipt_notes[]    @relation("GrnTenant")
+  supplier_invoices      supplier_invoices[]      @relation("SupplierInvoiceTenant")
+  shipments              shipments[]              @relation("ShipmentTenant")
+  commercial_invoices    commercial_invoices[]    @relation("CommercialInvoiceTenant")
+  exchange_rates         exchange_rates[]         @relation("ExchangeRateTenant")
+  chart_of_accounts      chart_of_accounts[]      @relation("AccountTenant")
+  journals               journals[]               @relation("JournalTenant")
+  accounts_payable       accounts_payable[]       @relation("PayableTenant")
+  accounts_receivable    accounts_receivable[]    @relation("ReceivableTenant")
+  payments               payments[]               @relation("PaymentTenant")
+  employees              employees[]              @relation("EmployeeTenant")
+  attendance             attendance[]             @relation("AttendanceTenant")
+  leave_types            leave_types[]            @relation("LeaveTypeTenant")
+  payroll_runs           payroll_runs[]           @relation("PayrollTenant")
+  compliance_schemes     compliance_schemes[]     @relation("ComplianceSchemeTenant")
+  compliance_audits      compliance_audits[]      @relation("ComplianceAuditTenant")
+  certificates           certificates[]           @relation("CertificateTenant")
+  attachments            attachments[]            @relation("AttachmentTenant")
+  notifications          notifications[]          @relation("NotificationTenant")
+  rag_documents          rag_documents[]          @relation("RagTenant")
+  ai_tool_call_logs      ai_tool_call_logs[]      @relation("AiLogTenant")
+  cutting_orders         cutting_orders[]         @relation("CuttingOrderTenant")
+  finishing_checklists   finishing_checklists[]   @relation("FinishingTenant")
+
+  @@map("tenants")
+}
+
+model companies {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  tenant_id String @db.Uuid
+
+  name String @db.VarChar(200)
+
+  legal_name String? @db.VarChar(200)
+
+  registration_no String? @db.VarChar(100)
+
+  tax_id String? @db.VarChar(100)
+
+  base_currency String @db.Char(3)
+
+  is_active Boolean @default(true)
+
+  tenant            tenants             @relation(fields: [tenant_id], references: [id])
+  factories         factories[]
+  branches          branches[]          @relation("BranchCompany")
+  buyers            buyers[]            @relation("BuyerCompany")
+  styles            styles[]            @relation("StyleCompany")
+  fabrics           fabrics[]           @relation("FabricCompany")
+  trims             trims[]             @relation("TrimCompany")
+  suppliers         suppliers[]         @relation("SupplierCompany")
+  chart_of_accounts chart_of_accounts[] @relation("AccountCompany")
+  journals          journals[]          @relation("JournalCompany")
+  employees         employees[]         @relation("EmployeeCompany")
+  sales_orders      sales_orders[]      @relation("OrderCompany")
+
+  @@unique([tenant_id, name])
+  @@map("companies")
+}
+
+model factories {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  tenant_id String @db.Uuid
+
+  company_id String @db.Uuid
+
+  name String @db.VarChar(200)
+
+  code String @db.VarChar(30)
+
+  type String? @db.VarChar(50)
+
+  address String? @db.VarChar(255)
+
+  city String? @db.VarChar(100)
+
+  country String? @db.VarChar(100)
+
+  timezone String @default("Asia/Dhaka") @db.VarChar(50)
+
+  is_active Boolean @default(true)
+
+  company                companies                @relation(fields: [company_id], references: [id])
+  departments            departments[]
+  tenant                 tenants                  @relation("FactoryTenant", fields: [tenant_id], references: [id])
+  branches               branches[]               @relation("BranchFactory")
+  user_roles             user_roles[]             @relation("UserRoleFactory")
+  user_factory_access    user_factory_access[]    @relation("UserFactoryAccessFactory")
+  production_lines       production_lines[]       @relation("ProductionLineFactory")
+  sales_orders           sales_orders[]           @relation("OrderFactory")
+  daily_production_plans daily_production_plans[] @relation("DailyPlanFactory")
+  fabric_issues          fabric_issues[]          @relation("FabricIssueFactory")
+  cutting_orders         cutting_orders[]         @relation("CuttingOrderFactory")
+  warehouses             warehouses[]             @relation("WarehouseFactory")
+  purchase_requisitions  purchase_requisitions[]  @relation("PurchaseRequisitionFactory")
+  shipments              shipments[]              @relation("ShipmentFactory")
+  employees              employees[]              @relation("EmployeeFactory")
+  payroll_runs           payroll_runs[]           @relation("PayrollFactory")
+  compliance_audits      compliance_audits[]      @relation("ComplianceAuditFactory")
+  certificates           certificates[]           @relation("CertificateFactory")
+  order_factory_splits   order_factory_splits[]   @relation("OrderFactorySplitFactory")
+
+  @@unique([company_id, code])
+  @@map("factories")
+}
+
+model branches {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id   String     @db.Uuid
+  company_id  String     @db.Uuid
+  factory_id  String?    @db.Uuid
+  name        String     @db.VarChar(200)
+  branch_type String?    @db.VarChar(50)
+  address     String?    @db.Text
+  tenant      tenants    @relation("BranchTenant", fields: [tenant_id], references: [id])
+  company     companies  @relation("BranchCompany", fields: [company_id], references: [id])
+  factory     factories? @relation("BranchFactory", fields: [factory_id], references: [id])
+}
+
+model departments {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String        @db.Uuid
+  factory_id           String        @db.Uuid
+  name                 String        @db.VarChar(100)
+  parent_department_id String?       @db.Uuid
+  factory              factories     @relation(fields: [factory_id], references: [id])
+  tenant               tenants       @relation("DepartmentTenant", fields: [tenant_id], references: [id])
+  parent_department    departments?  @relation("DepartmentHierarchy", fields: [parent_department_id], references: [id])
+  child_departments    departments[] @relation("DepartmentHierarchy")
+  employees            employees[]   @relation("EmployeeDepartment")
+
+  @@unique([factory_id, name])
+}
+
+model users {
+  id                              String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                       String                     @db.Uuid
+  email                           String                     @db.VarChar(320)
+  username                        String?                    @db.VarChar(100)
+  password_hash                   String                     @db.VarChar(255)
+  status                          user_status_enum           @default(active)
+  mfa_enabled                     Boolean                    @default(false)
+  password_changed_at             DateTime?                  @db.Timestamptz(6)
+  last_login_at                   DateTime?                  @db.Timestamptz(6)
+  failed_login_count              Int                        @default(0)
+  is_deleted                      Boolean                    @default(false)
+  deleted_at                      DateTime?                  @db.Timestamptz(6)
+  tenant                          tenants                    @relation(fields: [tenant_id], references: [id])
+  mfa_factors                     mfa_factors[]              @relation("MfaUser")
+  user_roles                      user_roles[]               @relation("UserRoleUser")
+  user_factory_access             user_factory_access[]      @relation("UserFactoryAccessUser")
+  sessions                        sessions[]                 @relation("SessionUser")
+  audit_logs                      audit_logs[]               @relation("AuditUser")
+  order_amendments                order_amendments[]         @relation("OrderAmendmentUser")
+  tech_packs_approved             tech_packs[]               @relation("TechPackApprovedBy")
+  tna_milestones_responsible      tna_milestones[]           @relation("TnaMilestoneResponsible")
+  fabric_issues_issued            fabric_issues[]            @relation("FabricIssueIssuedBy")
+  markers_created                 markers[]                  @relation("MarkerCreatedBy")
+  fabric_relaxation_checks        fabric_relaxation_checks[] @relation("RelaxationCheckedBy")
+  finishing_checklists_checked    finishing_checklists[]     @relation("FinishingCheckedBy")
+  inline_inspections_inspected    inline_inspections[]       @relation("InlineInspectedBy")
+  endline_inspections_inspected   endline_inspections[]      @relation("EndlineInspectedBy")
+  aql_reports_inspected           aql_inspection_reports[]   @relation("AqlInspectedBy")
+  stock_adjustments_approved      stock_adjustments[]        @relation("StockAdjustmentApprovedBy")
+  purchase_requisitions_requested purchase_requisitions[]    @relation("PurchaseRequisitionRequestedBy")
+  purchase_requisitions_approved  purchase_requisitions[]    @relation("PurchaseRequisitionApprovedBy")
+  goods_receipt_notes_received    goods_receipt_notes[]      @relation("GrnReceivedBy")
+  journals_created                journals[]                 @relation("JournalCreatedBy")
+  journals_approved               journals[]                 @relation("JournalApprovedBy")
+  leave_applications_approved     leave_applications[]       @relation("LeaveApprovedBy")
+  payroll_runs_approved           payroll_runs[]             @relation("PayrollApprovedBy")
+  attachments_uploaded            attachments[]              @relation("AttachmentUploadedBy")
+  notifications                   notifications[]            @relation("NotificationUser")
+  ai_tool_call_logs               ai_tool_call_logs[]        @relation("AiLogUser")
+  employees                       employees[]                @relation("EmployeeUser")
+
+  @@unique([tenant_id, email])
+}
+
+model mfa_factors {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String  @db.Uuid
+  factor_type      String  @db.VarChar(30)
+  secret_encrypted String? @db.Text
+  is_verified      Boolean @default(false)
+  user             users   @relation("MfaUser", fields: [user_id], references: [id])
+}
+
+model roles {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String?            @db.Uuid
+  name             String             @db.VarChar(100)
+  is_system_role   Boolean            @default(false)
+  tenant           tenants?           @relation(fields: [tenant_id], references: [id])
+  role_permissions role_permissions[] @relation("RolePermissionRole")
+  user_roles       user_roles[]       @relation("UserRoleRole")
+
+  @@unique([tenant_id, name])
+}
+
+model permissions {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code             String             @unique @db.VarChar(100)
+  module           String             @db.VarChar(50)
+  action           String             @db.VarChar(50)
+  description      String?            @db.Text
+  role_permissions role_permissions[] @relation("RolePermissionPermission")
+}
+
+model role_permissions {
+  role_id       String      @db.Uuid
+  permission_id String      @db.Uuid
+  role          roles       @relation("RolePermissionRole", fields: [role_id], references: [id], onDelete: Cascade)
+  permission    permissions @relation("RolePermissionPermission", fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+}
+
+model user_roles {
+  user_id    String    @db.Uuid
+  role_id    String    @db.Uuid
+  factory_id String    @db.Uuid
+  user       users     @relation("UserRoleUser", fields: [user_id], references: [id], onDelete: Cascade)
+  role       roles     @relation("UserRoleRole", fields: [role_id], references: [id], onDelete: Cascade)
+  factory    factories @relation("UserRoleFactory", fields: [factory_id], references: [id])
+
+  @@id([user_id, role_id, factory_id])
+}
+
+model user_factory_access {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  factory_id String    @db.Uuid
+  is_primary Boolean   @default(false)
+  user       users     @relation("UserFactoryAccessUser", fields: [user_id], references: [id])
+  factory    factories @relation("UserFactoryAccessFactory", fields: [factory_id], references: [id])
+
+  @@unique([user_id, factory_id])
+}
+
+model sessions {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String               @db.Uuid
+  user_id        String               @db.Uuid
+  ip_address     Unsupported("inet")?
+  user_agent     String?              @db.Text
+  created_at     DateTime             @default(now()) @db.Timestamptz(6)
+  expires_at     DateTime             @db.Timestamptz(6)
+  revoked_at     DateTime?            @db.Timestamptz(6)
+  tenant         tenants              @relation("SessionTenant", fields: [tenant_id], references: [id])
+  user           users                @relation("SessionUser", fields: [user_id], references: [id])
+  refresh_tokens refresh_tokens[]     @relation("RefreshTokenSession")
+}
+
+model refresh_tokens {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_id           String           @db.Uuid
+  token_hash           String           @unique @db.VarChar(255)
+  issued_at            DateTime         @default(now()) @db.Timestamptz(6)
+  expires_at           DateTime         @db.Timestamptz(6)
+  revoked_at           DateTime?        @db.Timestamptz(6)
+  replaced_by_token_id String?          @db.Uuid
+  session              sessions         @relation("RefreshTokenSession", fields: [session_id], references: [id], onDelete: Cascade)
+  replaced_by_token    refresh_tokens?  @relation("RefreshTokenRotation", fields: [replaced_by_token_id], references: [id])
+  replacing_tokens     refresh_tokens[] @relation("RefreshTokenRotation")
+}
+
+model audit_logs {
+  id          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id   String               @db.Uuid
+  user_id     String?              @db.Uuid
+  action      String               @db.VarChar(100)
+  entity_type String?              @db.VarChar(100)
+  entity_id   String?              @db.Uuid
+  before_data Json?
+  after_data  Json?
+  ip_address  Unsupported("inet")?
+  user_agent  String?              @db.Text
+  occurred_at DateTime             @default(now()) @db.Timestamptz(6)
+  tenant      tenants              @relation("AuditTenant", fields: [tenant_id], references: [id])
+  user        users?               @relation("AuditUser", fields: [user_id], references: [id])
+}
+
+model buyers {
+  id                           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                    String                @db.Uuid
+  company_id                   String                @db.Uuid
+  name                         String                @db.VarChar(200)
+  code                         String                @db.VarChar(50)
+  payment_terms                String?               @db.VarChar(200)
+  shipping_preferences         Json?
+  compliance_requirements      Json?
+  default_aql_sampling_plan_id String?               @db.Uuid
+  is_active                    Boolean               @default(true)
+  tenant                       tenants               @relation("BuyerTenant", fields: [tenant_id], references: [id])
+  company                      companies             @relation("BuyerCompany", fields: [company_id], references: [id])
+  default_aql_sampling_plan    aql_sampling_plans?   @relation("BuyerDefaultAql", fields: [default_aql_sampling_plan_id], references: [id])
+  contacts                     buyer_contacts[]      @relation("BuyerContacts")
+  styles                       styles[]              @relation("StyleBuyer")
+  sales_orders                 sales_orders[]        @relation("OrderBuyer")
+  commercial_invoices          commercial_invoices[] @relation("CommercialInvoiceBuyer")
+  accounts_receivable          accounts_receivable[] @relation("ReceivableBuyer")
+
+  @@unique([tenant_id, code])
+}
+
+model buyer_contacts {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  buyer_id    String  @db.Uuid
+  name        String  @db.VarChar(150)
+  designation String? @db.VarChar(100)
+  email       String? @db.VarChar(320)
+  phone       String? @db.VarChar(30)
+  buyer       buyers  @relation("BuyerContacts", fields: [buyer_id], references: [id], onDelete: Cascade)
+}
+
+model styles {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                @db.Uuid
+  company_id          String                @db.Uuid
+  buyer_id            String                @db.Uuid
+  style_code          String                @db.VarChar(100)
+  name                String?               @db.VarChar(200)
+  description         String?               @db.Text
+  category            String?               @db.VarChar(100)
+  season              String?               @db.VarChar(50)
+  size_range          String?               @db.VarChar(50)
+  status              style_status_enum     @default(draft)
+  tenant              tenants               @relation("StyleTenant", fields: [tenant_id], references: [id])
+  company             companies             @relation("StyleCompany", fields: [company_id], references: [id])
+  buyer               buyers                @relation("StyleBuyer", fields: [buyer_id], references: [id])
+  sizes               style_sizes[]         @relation("StyleSizes")
+  colors              style_colors[]        @relation("StyleColors")
+  tech_packs          tech_packs[]          @relation("TechPackStyle")
+  boms                boms[]                @relation("BomStyle")
+  costing_sheets      costing_sheets[]      @relation("CostingStyle")
+  samples             samples[]             @relation("SampleStyle")
+  sales_orders        sales_orders[]        @relation("OrderStyle")
+  markers             markers[]             @relation("MarkerStyle")
+  operation_bulletins operation_bulletins[] @relation("BulletinStyle")
+  wash_recipes        wash_recipes[]        @relation("WashRecipeStyle")
+  stock_items         stock_items[]         @relation("StockItemStyle")
+
+  @@unique([tenant_id, buyer_id, style_code])
+}
+
+model style_sizes {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id     String         @db.Uuid
+  size_name    String         @db.VarChar(20)
+  sort_order   Int            @db.SmallInt
+  style        styles         @relation("StyleSizes", fields: [style_id], references: [id], onDelete: Cascade)
+  bom_items    bom_items[]    @relation("BomItemSize")
+  order_lines  order_lines[]  @relation("OrderLineSize")
+  cut_bundles  cut_bundles[]  @relation("CutBundleSize")
+  carton_items carton_items[] @relation("CartonItemSize")
+  stock_items  stock_items[]  @relation("StockItemSize")
+
+  @@unique([style_id, size_name])
+}
+
+model style_colors {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id     String         @db.Uuid
+  color_name   String         @db.VarChar(50)
+  color_code   String?        @db.VarChar(20)
+  style        styles         @relation("StyleColors", fields: [style_id], references: [id], onDelete: Cascade)
+  order_lines  order_lines[]  @relation("OrderLineColor")
+  cut_bundles  cut_bundles[]  @relation("CutBundleColor")
+  carton_items carton_items[] @relation("CartonItemColor")
+  stock_items  stock_items[]  @relation("StockItemColor")
+
+  @@unique([style_id, color_name])
+}
+
+model tech_packs {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id             String       @db.Uuid
+  version              Int          @default(1)
+  attachment_id        String?      @db.Uuid
+  construction_details Json?
+  approved_by          String?      @db.Uuid
+  approved_at          DateTime?    @db.Timestamptz(6)
+  style                styles       @relation("TechPackStyle", fields: [style_id], references: [id], onDelete: Cascade)
+  attachment           attachments? @relation("TechPackAttachment", fields: [attachment_id], references: [id])
+  approved_by_user     users?       @relation("TechPackApprovedBy", fields: [approved_by], references: [id])
+
+  @@unique([style_id, version])
+}
+
+model boms {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id       String               @db.Uuid
+  version        Int                  @default(1)
+  status         approval_status_enum @default(pending)
+  effective_date DateTime?            @db.Date
+  style          styles               @relation("BomStyle", fields: [style_id], references: [id])
+  items          bom_items[]          @relation("BomItems")
+
+  @@unique([style_id, version])
+}
+
+model bom_items {
+  id                      String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bom_id                  String             @db.Uuid
+  material_type           material_type_enum
+  fabric_id               String?            @db.Uuid
+  trim_id                 String?            @db.Uuid
+  style_size_id           String?            @db.Uuid
+  consumption_per_garment Decimal            @db.Decimal(14, 4)
+  uom_id                  String             @db.Uuid
+  wastage_pct             Decimal            @default(0) @db.Decimal(6, 3)
+  bom                     boms               @relation("BomItems", fields: [bom_id], references: [id], onDelete: Cascade)
+  fabric                  fabrics?           @relation("BomItemFabric", fields: [fabric_id], references: [id])
+  trim                    trims?             @relation("BomItemTrim", fields: [trim_id], references: [id])
+  style_size              style_sizes?       @relation("BomItemSize", fields: [style_size_id], references: [id])
+  uom                     units_of_measure   @relation("BomItemUom", fields: [uom_id], references: [id])
+}
+
+model costing_sheets {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id       String               @db.Uuid
+  version        Int                  @default(1)
+  fabric_cost    Decimal              @default(0) @db.Decimal(14, 2)
+  trim_cost      Decimal              @default(0) @db.Decimal(14, 2)
+  cm_cost        Decimal              @default(0) @db.Decimal(14, 2)
+  overhead_cost  Decimal              @default(0) @db.Decimal(14, 2)
+  commission_pct Decimal              @default(0) @db.Decimal(6, 3)
+  margin_pct     Decimal              @default(0) @db.Decimal(6, 3)
+  fob_price      Decimal              @db.Decimal(14, 2)
+  currency       String               @db.Char(3)
+  status         approval_status_enum @default(pending)
+  style          styles               @relation("CostingStyle", fields: [style_id], references: [id])
+
+  @@unique([style_id, version])
+}
+
+model samples {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id       String               @db.Uuid
+  sample_type    sample_type_enum
+  iteration_no   Int                  @default(1)
+  status         decision_status_enum @default(pending)
+  buyer_comments String?              @db.Text
+  requested_date DateTime?            @db.Date
+  submitted_date DateTime?            @db.Date
+  decision_date  DateTime?            @db.Date
+  decided_by     String?              @db.VarChar(150)
+  style          styles               @relation("SampleStyle", fields: [style_id], references: [id])
+
+  @@unique([style_id, sample_type, iteration_no])
+}
+
+model sales_orders {
+  id                        String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                 String                      @db.Uuid
+  company_id                String                      @db.Uuid
+  factory_id                String                      @db.Uuid
+  order_no                  String                      @db.VarChar(50)
+  buyer_id                  String                      @db.Uuid
+  style_id                  String                      @db.Uuid
+  order_date                DateTime                    @db.Date
+  ship_date                 DateTime                    @db.Date
+  incoterm                  String?                     @db.VarChar(10)
+  currency                  String                      @db.Char(3)
+  total_quantity            Int                         @default(0)
+  status                    order_status_enum           @default(draft)
+  tenant                    tenants                     @relation("OrderTenant", fields: [tenant_id], references: [id])
+  company                   companies                   @relation("OrderCompany", fields: [company_id], references: [id])
+  factory                   factories                   @relation("OrderFactory", fields: [factory_id], references: [id])
+  buyer                     buyers                      @relation("OrderBuyer", fields: [buyer_id], references: [id])
+  style                     styles                      @relation("OrderStyle", fields: [style_id], references: [id])
+  order_lines               order_lines[]               @relation("OrderLines")
+  amendments                order_amendments[]          @relation("OrderAmendments")
+  factory_splits            order_factory_splits[]      @relation("OrderFactorySplits")
+  tna_calendar              tna_calendars?              @relation("OrderTnaCalendar")
+  line_bookings             line_bookings[]             @relation("LineBookingOrder")
+  daily_production_plans    daily_production_plans[]    @relation("DailyPlanOrder")
+  mrp_requirements          mrp_requirements[]          @relation("MrpOrder")
+  cutting_orders            cutting_orders[]            @relation("CuttingOrderOrder")
+  finishing_checklists      finishing_checklists[]      @relation("FinishingOrder")
+  wash_orders               wash_orders[]               @relation("WashOrderOrder")
+  packing_configs           packing_configs[]           @relation("PackingConfigOrder")
+  cartons                   cartons[]                   @relation("CartonOrder")
+  inline_inspections        inline_inspections[]        @relation("InlineOrder")
+  endline_inspections       endline_inspections[]       @relation("EndlineOrder")
+  aql_inspection_reports    aql_inspection_reports[]    @relation("AqlReportOrder")
+  shipments                 shipments[]                 @relation("ShipmentOrder")
+  order_costing             order_costings?             @relation("OrderCosting")
+  piece_rate_outputs        piece_rate_outputs[]        @relation("PieceRateOrder")
+  line_balance_plans        line_balance_plans[]        @relation("LineBalanceOrder")
+  fabric_issues             fabric_issues[]             @relation("FabricIssueOrder")
+  hourly_production_records hourly_production_records[] @relation("HourlyOrder")
+  purchase_requisitions     purchase_requisitions[]     @relation("PurchaseRequisitionOrder")
+
+  @@unique([tenant_id, order_no])
+}
+
+model order_lines {
+  id                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id                 String                     @db.Uuid
+  style_color_id           String                     @db.Uuid
+  style_size_id            String                     @db.Uuid
+  sku_code                 String                     @db.VarChar(100)
+  quantity                 Int
+  unit_price               Decimal                    @db.Decimal(14, 2)
+  status                   order_status_enum          @default(confirmed)
+  order                    sales_orders               @relation("OrderLines", fields: [order_id], references: [id], onDelete: Cascade)
+  style_color              style_colors               @relation("OrderLineColor", fields: [style_color_id], references: [id])
+  style_size               style_sizes                @relation("OrderLineSize", fields: [style_size_id], references: [id])
+  commercial_invoice_items commercial_invoice_items[] @relation("CommercialInvoiceItemOrderLine")
+
+  @@unique([order_id, style_color_id, style_size_id])
+}
+
+model order_amendments {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id        String       @db.Uuid
+  field_changed   String       @db.VarChar(50)
+  old_value       String?      @db.Text
+  new_value       String?      @db.Text
+  reason          String?      @db.Text
+  amended_by      String?      @db.Uuid
+  amended_at      DateTime     @default(now()) @db.Timestamptz(6)
+  order           sales_orders @relation("OrderAmendments", fields: [order_id], references: [id])
+  amended_by_user users?       @relation("OrderAmendmentUser", fields: [amended_by], references: [id])
+}
+
+model order_factory_splits {
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id   String       @db.Uuid
+  factory_id String       @db.Uuid
+  quantity   Int
+  order      sales_orders @relation("OrderFactorySplits", fields: [order_id], references: [id])
+  factory    factories    @relation("OrderFactorySplitFactory", fields: [factory_id], references: [id])
+
+  @@unique([order_id, factory_id])
+}
+
+model tna_templates {
+  id         String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id  String                    @db.Uuid
+  name       String                    @db.VarChar(100)
+  is_default Boolean                   @default(false)
+  tenant     tenants                   @relation("TnaTemplateTenant", fields: [tenant_id], references: [id])
+  milestones tna_template_milestones[] @relation("TnaTemplateMilestones")
+  calendars  tna_calendars[]           @relation("TnaCalendarTemplate")
+}
+
+model tna_template_milestones {
+  id               String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tna_template_id  String                @db.Uuid
+  milestone_name   String                @db.VarChar(100)
+  sequence         Int                   @db.SmallInt
+  offset_days      Int
+  offset_reference offset_reference_enum
+  buffer_days      Int                   @default(0)
+  template         tna_templates         @relation("TnaTemplateMilestones", fields: [tna_template_id], references: [id], onDelete: Cascade)
+}
+
+model tna_calendars {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id        String           @unique @db.Uuid
+  tna_template_id String           @db.Uuid
+  generated_at    DateTime         @default(now()) @db.Timestamptz(6)
+  order           sales_orders     @relation("OrderTnaCalendar", fields: [order_id], references: [id])
+  template        tna_templates    @relation("TnaCalendarTemplate", fields: [tna_template_id], references: [id])
+  milestones      tna_milestones[] @relation("TnaCalendarMilestones")
+}
+
+model tna_milestones {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tna_calendar_id     String                @db.Uuid
+  milestone_name      String                @db.VarChar(100)
+  sequence            Int                   @db.SmallInt
+  planned_date        DateTime              @db.Date
+  actual_date         DateTime?             @db.Date
+  status              milestone_status_enum @default(pending)
+  responsible_user_id String?               @db.Uuid
+  buffer_days         Int                   @default(0)
+  calendar            tna_calendars         @relation("TnaCalendarMilestones", fields: [tna_calendar_id], references: [id], onDelete: Cascade)
+  responsible_user    users?                @relation("TnaMilestoneResponsible", fields: [responsible_user_id], references: [id])
+}
+
+model units_of_measure {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                  String?                      @db.Uuid
+  code                       String                       @db.VarChar(10)
+  name                       String                       @db.VarChar(50)
+  category                   String?                      @db.VarChar(30)
+  tenant                     tenants?                     @relation("UomTenant", fields: [tenant_id], references: [id])
+  from_conversions           uom_conversions[]            @relation("UomConversionFrom")
+  to_conversions             uom_conversions[]            @relation("UomConversionTo")
+  bom_items                  bom_items[]                  @relation("BomItemUom")
+  fabrics                    fabrics[]                    @relation("FabricUom")
+  trims                      trims[]                      @relation("TrimUom")
+  fabric_issue_items         fabric_issue_items[]         @relation("FabricIssueItemUom")
+  purchase_requisition_items purchase_requisition_items[] @relation("PurchaseRequisitionItemUom")
+  purchase_order_items       purchase_order_items[]       @relation("PurchaseOrderItemUom")
+  stock_items                stock_items[]                @relation("StockItemUom")
+
+  @@unique([tenant_id, code])
+}
+
+model uom_conversions {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  from_uom_id     String           @db.Uuid
+  to_uom_id       String           @db.Uuid
+  multiply_factor Decimal          @db.Decimal(18, 8)
+  from_uom        units_of_measure @relation("UomConversionFrom", fields: [from_uom_id], references: [id])
+  to_uom          units_of_measure @relation("UomConversionTo", fields: [to_uom_id], references: [id])
+
+  @@unique([from_uom_id, to_uom_id])
+}
+
+model fabrics {
+  id                   String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String                       @db.Uuid
+  company_id           String                       @db.Uuid
+  fabric_code          String                       @db.VarChar(50)
+  name                 String                       @db.VarChar(150)
+  composition          String?                      @db.VarChar(200)
+  gsm                  Decimal?                     @db.Decimal(8, 2)
+  width_cm             Decimal?                     @db.Decimal(8, 2)
+  shrinkage_pct        Decimal?                     @db.Decimal(6, 3)
+  color                String?                      @db.VarChar(50)
+  dye_lot              String?                      @db.VarChar(50)
+  default_supplier_id  String?                      @db.Uuid
+  uom_id               String                       @db.Uuid
+  standard_cost        Decimal?                     @db.Decimal(14, 4)
+  is_active            Boolean                      @default(true)
+  tenant               tenants                      @relation("FabricTenant", fields: [tenant_id], references: [id])
+  company              companies                    @relation("FabricCompany", fields: [company_id], references: [id])
+  default_supplier     suppliers?                   @relation("FabricDefaultSupplier", fields: [default_supplier_id], references: [id])
+  uom                  units_of_measure             @relation("FabricUom", fields: [uom_id], references: [id])
+  bom_items            bom_items[]                  @relation("BomItemFabric")
+  supplier_materials   supplier_materials[]         @relation("SupplierMaterialFabric")
+  mrp_requirements     mrp_requirements[]           @relation("MrpFabric")
+  issue_items          fabric_issue_items[]         @relation("FabricIssueItemFabric")
+  stock_items          stock_items[]                @relation("StockItemFabric")
+  requisition_items    purchase_requisition_items[] @relation("PurchaseRequisitionItemFabric")
+  purchase_order_items purchase_order_items[]       @relation("PurchaseOrderItemFabric")
+
+  @@unique([tenant_id, fabric_code])
+}
+
+model trims {
+  id                   String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String                       @db.Uuid
+  company_id           String                       @db.Uuid
+  trim_code            String                       @db.VarChar(50)
+  name                 String                       @db.VarChar(150)
+  category             String?                      @db.VarChar(50)
+  default_supplier_id  String?                      @db.Uuid
+  uom_id               String                       @db.Uuid
+  standard_cost        Decimal?                     @db.Decimal(14, 4)
+  is_active            Boolean                      @default(true)
+  tenant               tenants                      @relation("TrimTenant", fields: [tenant_id], references: [id])
+  company              companies                    @relation("TrimCompany", fields: [company_id], references: [id])
+  default_supplier     suppliers?                   @relation("TrimDefaultSupplier", fields: [default_supplier_id], references: [id])
+  uom                  units_of_measure             @relation("TrimUom", fields: [uom_id], references: [id])
+  bom_items            bom_items[]                  @relation("BomItemTrim")
+  supplier_materials   supplier_materials[]         @relation("SupplierMaterialTrim")
+  mrp_requirements     mrp_requirements[]           @relation("MrpTrim")
+  stock_items          stock_items[]                @relation("StockItemTrim")
+  requisition_items    purchase_requisition_items[] @relation("PurchaseRequisitionItemTrim")
+  purchase_order_items purchase_order_items[]       @relation("PurchaseOrderItemTrim")
+
+  @@unique([tenant_id, trim_code])
+}
+
+model supplier_materials {
+  id                     String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplier_id            String             @db.Uuid
+  material_type          material_type_enum
+  fabric_id              String?            @db.Uuid
+  trim_id                String?            @db.Uuid
+  supplier_material_code String?            @db.VarChar(50)
+  lead_time_days         Int?
+  moq                    Decimal?           @db.Decimal(14, 3)
+  price                  Decimal?           @db.Decimal(14, 4)
+  currency               String?            @db.Char(3)
+  supplier               suppliers          @relation("SupplierMaterials", fields: [supplier_id], references: [id])
+  fabric                 fabrics?           @relation("SupplierMaterialFabric", fields: [fabric_id], references: [id])
+  trim                   trims?             @relation("SupplierMaterialTrim", fields: [trim_id], references: [id])
+
+  @@unique([supplier_id, material_type, fabric_id, trim_id])
+}
+
+model production_lines {
+  id                             String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                      String                      @db.Uuid
+  factory_id                     String                      @db.Uuid
+  name                           String                      @db.VarChar(100)
+  code                           String                      @db.VarChar(30)
+  floor                          String?                     @db.VarChar(50)
+  allocated_sam_capacity_per_day Decimal                     @db.Decimal(10, 2)
+  is_active                      Boolean                     @default(true)
+  tenant                         tenants                     @relation("ProductionLineTenant", fields: [tenant_id], references: [id])
+  factory                        factories                   @relation("ProductionLineFactory", fields: [factory_id], references: [id])
+  capacity_plans                 line_capacity_plans[]       @relation("CapacityPlanLine")
+  bookings                       line_bookings[]             @relation("LineBookingLine")
+  daily_plans                    daily_production_plans[]    @relation("DailyPlanLine")
+  balance_plans                  line_balance_plans[]        @relation("LineBalanceLine")
+  bundle_scans                   bundle_scans[]              @relation("BundleScanLine")
+  hourly_records                 hourly_production_records[] @relation("HourlyLine")
+  downtime_logs                  downtime_logs[]             @relation("DowntimeLine")
+  inline_inspections             inline_inspections[]        @relation("InlineLine")
+  endline_inspections            endline_inspections[]       @relation("EndlineLine")
+
+  @@unique([factory_id, code])
+}
+
+model line_capacity_plans {
+  id                    String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  production_line_id    String           @db.Uuid
+  plan_date             DateTime         @db.Date
+  available_minutes     Decimal          @db.Decimal(10, 2)
+  planned_sam_minutes   Decimal          @default(0) @db.Decimal(10, 2)
+  efficiency_target_pct Decimal?         @db.Decimal(6, 3)
+  production_line       production_lines @relation("CapacityPlanLine", fields: [production_line_id], references: [id])
+
+  @@unique([production_line_id, plan_date])
+}
+
+model line_bookings {
+  id                  String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id            String           @db.Uuid
+  production_line_id  String           @db.Uuid
+  booked_date         DateTime         @db.Date
+  planned_quantity    Int
+  planned_sam_minutes Decimal          @db.Decimal(12, 2)
+  order               sales_orders     @relation("LineBookingOrder", fields: [order_id], references: [id])
+  production_line     production_lines @relation("LineBookingLine", fields: [production_line_id], references: [id])
+}
+
+model daily_production_plans {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id          String           @db.Uuid
+  factory_id         String           @db.Uuid
+  plan_date          DateTime         @db.Date
+  production_line_id String           @db.Uuid
+  order_id           String           @db.Uuid
+  department         String           @db.VarChar(30)
+  planned_quantity   Int
+  tenant             tenants          @relation("DailyPlanTenant", fields: [tenant_id], references: [id])
+  factory            factories        @relation("DailyPlanFactory", fields: [factory_id], references: [id])
+  production_line    production_lines @relation("DailyPlanLine", fields: [production_line_id], references: [id])
+  order              sales_orders     @relation("DailyPlanOrder", fields: [order_id], references: [id])
+
+  @@unique([production_line_id, plan_date, order_id, department])
+}
+
+model mrp_requirements {
+  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id      String             @db.Uuid
+  material_type material_type_enum
+  fabric_id     String?            @db.Uuid
+  trim_id       String?            @db.Uuid
+  required_qty  Decimal            @db.Decimal(14, 3)
+  available_qty Decimal            @default(0) @db.Decimal(14, 3)
+  ordered_qty   Decimal            @default(0) @db.Decimal(14, 3)
+  shortage_qty  Decimal            @default(0) @db.Decimal(14, 3)
+  calculated_at DateTime           @default(now()) @db.Timestamptz(6)
+  order         sales_orders       @relation("MrpOrder", fields: [order_id], references: [id])
+  fabric        fabrics?           @relation("MrpFabric", fields: [fabric_id], references: [id])
+  trim          trims?             @relation("MrpTrim", fields: [trim_id], references: [id])
+}
+
+model fabric_issues {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String               @db.Uuid
+  factory_id     String               @db.Uuid
+  order_id       String               @db.Uuid
+  warehouse_id   String               @db.Uuid
+  issue_no       String               @db.VarChar(50)
+  issued_date    DateTime             @db.Date
+  issued_by      String?              @db.Uuid
+  status         String               @default("issued") @db.VarChar(20)
+  tenant         tenants              @relation("FabricIssueTenant", fields: [tenant_id], references: [id])
+  factory        factories            @relation("FabricIssueFactory", fields: [factory_id], references: [id])
+  order          sales_orders         @relation("FabricIssueOrder", fields: [order_id], references: [id])
+  warehouse      warehouses           @relation("FabricIssueWarehouse", fields: [warehouse_id], references: [id])
+  issued_by_user users?               @relation("FabricIssueIssuedBy", fields: [issued_by], references: [id])
+  items          fabric_issue_items[] @relation("FabricIssueItems")
+
+  @@unique([tenant_id, issue_no])
+}
+
+model fabric_issue_items {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fabric_issue_id String           @db.Uuid
+  fabric_id       String           @db.Uuid
+  stock_lot_id    String           @db.Uuid
+  quantity_issued Decimal          @db.Decimal(14, 3)
+  uom_id          String           @db.Uuid
+  issue           fabric_issues    @relation("FabricIssueItems", fields: [fabric_issue_id], references: [id], onDelete: Cascade)
+  fabric          fabrics          @relation("FabricIssueItemFabric", fields: [fabric_id], references: [id])
+  stock_lot       stock_lots       @relation("FabricIssueItemLot", fields: [stock_lot_id], references: [id])
+  uom             units_of_measure @relation("FabricIssueItemUom", fields: [uom_id], references: [id])
+}
+
+model markers {
+  id                    String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id              String           @db.Uuid
+  marker_no             String           @db.VarChar(50)
+  size_ratio            Json
+  marker_length         Decimal          @db.Decimal(10, 3)
+  marker_efficiency_pct Decimal          @db.Decimal(6, 3)
+  ply_count_planned     Int?
+  created_by            String?          @db.Uuid
+  style                 styles           @relation("MarkerStyle", fields: [style_id], references: [id])
+  lays                  lays[]           @relation("LayMarker")
+  created_by_user       users?           @relation("MarkerCreatedBy", fields: [created_by], references: [id])
+  cutting_orders        cutting_orders[] @relation("CuttingOrderMarker")
+
+  @@unique([style_id, marker_no])
+}
+
+model lays {
+  id                     String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  marker_id              String                     @db.Uuid
+  cutting_order_id       String?                    @db.Uuid
+  ply_count_actual       Int
+  planned_consumption    Decimal                    @db.Decimal(14, 3)
+  fabric_consumed_actual Decimal                    @db.Decimal(14, 3)
+  variance_pct           Decimal                    @db.Decimal(6, 3)
+  lay_date               DateTime                   @db.Date
+  marker                 markers                    @relation("LayMarker", fields: [marker_id], references: [id])
+  cutting_order          cutting_orders?            @relation("LayCuttingOrder", fields: [cutting_order_id], references: [id])
+  relaxation_checks      fabric_relaxation_checks[] @relation("RelaxationLay")
+}
+
+model cutting_orders {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String        @db.Uuid
+  factory_id       String        @db.Uuid
+  order_id         String        @db.Uuid
+  marker_id        String        @db.Uuid
+  cutting_order_no String        @db.VarChar(50)
+  planned_quantity Int
+  cut_ratio_pct    Decimal?      @db.Decimal(6, 3)
+  status           String        @default("open") @db.VarChar(20)
+  tenant           tenants       @relation("CuttingOrderTenant", fields: [tenant_id], references: [id])
+  factory          factories     @relation("CuttingOrderFactory", fields: [factory_id], references: [id])
+  order            sales_orders  @relation("CuttingOrderOrder", fields: [order_id], references: [id])
+  marker           markers       @relation("CuttingOrderMarker", fields: [marker_id], references: [id])
+  lay              lays[]        @relation("LayCuttingOrder")
+  bundles          cut_bundles[] @relation("CutBundleOrder")
+
+  @@unique([tenant_id, cutting_order_no])
+}
+
+model cut_bundles {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cutting_order_id     String                 @db.Uuid
+  bundle_no            String                 @db.VarChar(50)
+  style_color_id       String                 @db.Uuid
+  style_size_id        String                 @db.Uuid
+  quantity             Int
+  status               String                 @default("cut") @db.VarChar(30)
+  cutting_order        cutting_orders         @relation("CutBundleOrder", fields: [cutting_order_id], references: [id])
+  style_color          style_colors           @relation("CutBundleColor", fields: [style_color_id], references: [id])
+  style_size           style_sizes            @relation("CutBundleSize", fields: [style_size_id], references: [id])
+  scans                bundle_scans[]         @relation("BundleScanBundle")
+  finishing_checklists finishing_checklists[] @relation("FinishingBundle")
+  inline_inspections   inline_inspections[]   @relation("InlineBundle")
+
+  @@unique([cutting_order_id, bundle_no])
+}
+
+model fabric_relaxation_checks {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lay_id            String   @db.Uuid
+  checked_by        String?  @db.Uuid
+  shade_band_result String?  @db.VarChar(30)
+  relaxation_hours  Decimal? @db.Decimal(6, 2)
+  notes             String?  @db.Text
+  checked_at        DateTime @default(now()) @db.Timestamptz(6)
+  lay               lays     @relation("RelaxationLay", fields: [lay_id], references: [id])
+  checked_by_user   users?   @relation("RelaxationCheckedBy", fields: [checked_by], references: [id])
+}
+
+model operation_bulletins {
+  id            String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id      String                     @db.Uuid
+  version       Int                        @default(1)
+  is_active     Boolean                    @default(true)
+  style         styles                     @relation("BulletinStyle", fields: [style_id], references: [id])
+  lines         operation_bulletin_lines[] @relation("BulletinLines")
+  balance_plans line_balance_plans[]       @relation("LineBalanceBulletin")
+
+  @@unique([style_id, version])
+}
+
+model operation_bulletin_lines {
+  id                    String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  operation_bulletin_id String                     @db.Uuid
+  operation_seq         Int                        @db.SmallInt
+  operation_name        String                     @db.VarChar(150)
+  machine_type          String?                    @db.VarChar(50)
+  sam_value             Decimal                    @db.Decimal(8, 4)
+  bulletin              operation_bulletins        @relation("BulletinLines", fields: [operation_bulletin_id], references: [id], onDelete: Cascade)
+  balance_assignments   line_balance_assignments[] @relation("BalanceAssignmentLine")
+  bundle_scans          bundle_scans[]             @relation("BundleScanOperation")
+  piece_rate_outputs    piece_rate_outputs[]       @relation("PieceRateOperation")
+  inline_inspections    inline_inspections[]       @relation("InlineOperation")
+
+  @@unique([operation_bulletin_id, operation_seq])
+}
+
+model line_balance_plans {
+  id                    String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  operation_bulletin_id String                     @db.Uuid
+  production_line_id    String                     @db.Uuid
+  order_id              String                     @db.Uuid
+  effective_date        DateTime                   @db.Date
+  target_efficiency_pct Decimal?                   @db.Decimal(6, 3)
+  bulletin              operation_bulletins        @relation("LineBalanceBulletin", fields: [operation_bulletin_id], references: [id])
+  production_line       production_lines           @relation("LineBalanceLine", fields: [production_line_id], references: [id])
+  order                 sales_orders               @relation("LineBalanceOrder", fields: [order_id], references: [id])
+  assignments           line_balance_assignments[] @relation("BalanceAssignments")
+}
+
+model line_balance_assignments {
+  id                         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  line_balance_plan_id       String                   @db.Uuid
+  operation_bulletin_line_id String                   @db.Uuid
+  operator_employee_id       String?                  @db.Uuid
+  machine_no                 String?                  @db.VarChar(30)
+  assigned_operators_count   Int                      @default(1) @db.SmallInt
+  plan                       line_balance_plans       @relation("BalanceAssignments", fields: [line_balance_plan_id], references: [id], onDelete: Cascade)
+  operation                  operation_bulletin_lines @relation("BalanceAssignmentLine", fields: [operation_bulletin_line_id], references: [id])
+  operator                   employees?               @relation("BalanceAssignmentEmployee", fields: [operator_employee_id], references: [id])
+}
+
+model bundle_scans {
+  id                         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                  String                   @db.Uuid
+  cut_bundle_id              String                   @db.Uuid
+  operation_bulletin_line_id String                   @db.Uuid
+  production_line_id         String                   @db.Uuid
+  operator_employee_id       String?                  @db.Uuid
+  scan_type                  scan_type_enum
+  device_local_timestamp     DateTime                 @db.Timestamptz(6)
+  server_timestamp           DateTime                 @default(now()) @db.Timestamptz(6)
+  synced_offline             Boolean                  @default(false)
+  client_scan_uuid           String                   @unique @db.Uuid
+  tenant                     tenants                  @relation("BundleScanTenant", fields: [tenant_id], references: [id])
+  cut_bundle                 cut_bundles              @relation("BundleScanBundle", fields: [cut_bundle_id], references: [id])
+  operation                  operation_bulletin_lines @relation("BundleScanOperation", fields: [operation_bulletin_line_id], references: [id])
+  production_line            production_lines         @relation("BundleScanLine", fields: [production_line_id], references: [id])
+  operator                   employees?               @relation("BundleScanEmployee", fields: [operator_employee_id], references: [id])
+}
+
+model hourly_production_records {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  production_line_id   String           @db.Uuid
+  order_id             String           @db.Uuid
+  record_date          DateTime         @db.Date
+  hour_slot            Int              @db.SmallInt
+  quantity_produced    Int              @default(0)
+  available_minutes    Decimal          @db.Decimal(8, 2)
+  produced_sam_minutes Decimal          @db.Decimal(10, 2)
+  efficiency_pct       Decimal?         @db.Decimal(6, 3)
+  production_line      production_lines @relation("HourlyLine", fields: [production_line_id], references: [id])
+  order                sales_orders     @relation("HourlyOrder", fields: [order_id], references: [id])
+
+  @@unique([production_line_id, record_date, hour_slot])
+}
+
+model downtime_reasons {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id   String          @db.Uuid
+  code        String          @db.VarChar(30)
+  description String          @db.VarChar(150)
+  tenant      tenants         @relation("DowntimeReasonTenant", fields: [tenant_id], references: [id])
+  logs        downtime_logs[] @relation("DowntimeReasonLog")
+
+  @@unique([tenant_id, code])
+}
+
+model downtime_logs {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  production_line_id String           @db.Uuid
+  downtime_reason_id String           @db.Uuid
+  record_date        DateTime         @db.Date
+  hour_slot          Int?             @db.SmallInt
+  duration_minutes   Decimal          @db.Decimal(8, 2)
+  notes              String?          @db.Text
+  production_line    production_lines @relation("DowntimeLine", fields: [production_line_id], references: [id])
+  reason             downtime_reasons @relation("DowntimeReasonLog", fields: [downtime_reason_id], references: [id])
+}
+
+model piece_rate_outputs {
+  id                         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  operator_employee_id       String                   @db.Uuid
+  order_id                   String                   @db.Uuid
+  operation_bulletin_line_id String                   @db.Uuid
+  record_date                DateTime                 @db.Date
+  quantity                   Int
+  rate_per_piece             Decimal                  @db.Decimal(10, 4)
+  incentive_amount           Decimal                  @db.Decimal(14, 2)
+  operator                   employees                @relation("PieceRateEmployee", fields: [operator_employee_id], references: [id])
+  order                      sales_orders             @relation("PieceRateOrder", fields: [order_id], references: [id])
+  operation                  operation_bulletin_lines @relation("PieceRateOperation", fields: [operation_bulletin_line_id], references: [id])
+}
+
+model finishing_checklists {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String       @db.Uuid
+  order_id             String       @db.Uuid
+  cut_bundle_id        String?      @db.Uuid
+  checklist_date       DateTime     @db.Date
+  thread_trimming_done Boolean      @default(false)
+  ironing_done         Boolean      @default(false)
+  tagging_done         Boolean      @default(false)
+  checked_by           String?      @db.Uuid
+  remarks              String?      @db.Text
+  tenant               tenants      @relation("FinishingTenant", fields: [tenant_id], references: [id])
+  order                sales_orders @relation("FinishingOrder", fields: [order_id], references: [id])
+  cut_bundle           cut_bundles? @relation("FinishingBundle", fields: [cut_bundle_id], references: [id])
+  checked_by_user      users?       @relation("FinishingCheckedBy", fields: [checked_by], references: [id])
+}
+
+model wash_recipes {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  style_id             String        @db.Uuid
+  recipe_name          String        @db.VarChar(100)
+  chemical_details     Json?
+  temperature_celsius  Decimal?      @db.Decimal(6, 2)
+  duration_minutes     Int?
+  target_shrinkage_pct Decimal?      @db.Decimal(6, 3)
+  target_shade         String?       @db.VarChar(50)
+  style                styles        @relation("WashRecipeStyle", fields: [style_id], references: [id])
+  wash_orders          wash_orders[] @relation("WashOrderRecipe")
+}
+
+model wash_orders {
+  id                        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id                  String       @db.Uuid
+  wash_recipe_id            String       @db.Uuid
+  subcontractor_supplier_id String?      @db.Uuid
+  quantity                  Int
+  wash_date                 DateTime?    @db.Date
+  actual_shrinkage_pct      Decimal?     @db.Decimal(6, 3)
+  actual_shade_result       String?      @db.VarChar(50)
+  status                    String       @default("pending") @db.VarChar(20)
+  order                     sales_orders @relation("WashOrderOrder", fields: [order_id], references: [id])
+  recipe                    wash_recipes @relation("WashOrderRecipe", fields: [wash_recipe_id], references: [id])
+  subcontractor             suppliers?   @relation("WashSubcontractor", fields: [subcontractor_supplier_id], references: [id])
+}
+
+model packing_configs {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id         String       @db.Uuid
+  pieces_per_poly  Int          @default(1) @db.SmallInt
+  polys_per_carton Int          @default(1) @db.SmallInt
+  assortment_ratio Json?
+  order            sales_orders @relation("PackingConfigOrder", fields: [order_id], references: [id])
+  cartons          cartons[]    @relation("CartonPackingConfig")
+}
+
+model cartons {
+  id                String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id          String                          @db.Uuid
+  packing_config_id String                          @db.Uuid
+  carton_no         String                          @db.VarChar(50)
+  gross_weight_kg   Decimal?                        @db.Decimal(8, 3)
+  net_weight_kg     Decimal?                        @db.Decimal(8, 3)
+  dimensions        String?                         @db.VarChar(50)
+  barcode           String?                         @unique @db.VarChar(100)
+  status            String                          @default("packed") @db.VarChar(20)
+  order             sales_orders                    @relation("CartonOrder", fields: [order_id], references: [id])
+  packing_config    packing_configs                 @relation("CartonPackingConfig", fields: [packing_config_id], references: [id])
+  items             carton_items[]                  @relation("CartonItems")
+  shipment_cartons  shipment_cartons[]              @relation("ShipmentCartonCarton")
+  aql_reports       aql_inspection_report_cartons[] @relation("AqlReportCarton")
+
+  @@unique([order_id, carton_no])
+}
+
+model carton_items {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carton_id      String       @db.Uuid
+  style_color_id String       @db.Uuid
+  style_size_id  String       @db.Uuid
+  quantity       Int
+  carton         cartons      @relation("CartonItems", fields: [carton_id], references: [id], onDelete: Cascade)
+  style_color    style_colors @relation("CartonItemColor", fields: [style_color_id], references: [id])
+  style_size     style_sizes  @relation("CartonItemSize", fields: [style_size_id], references: [id])
+}
+
+model defect_codes {
+  id               String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String                       @db.Uuid
+  code             String                       @db.VarChar(30)
+  description      String                       @db.VarChar(200)
+  default_severity severity_enum
+  category         String?                      @db.VarChar(50)
+  tenant           tenants                      @relation("DefectCodeTenant", fields: [tenant_id], references: [id])
+  inline_defects   inline_inspection_defects[]  @relation("InlineDefectCode")
+  endline_defects  endline_inspection_defects[] @relation("EndlineDefectCode")
+  rework_orders    rework_orders[]              @relation("ReworkDefectCode")
+
+  @@unique([tenant_id, code])
+}
+
+model inline_inspections {
+  id                         String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                  String                      @db.Uuid
+  order_id                   String                      @db.Uuid
+  production_line_id         String                      @db.Uuid
+  operation_bulletin_line_id String?                     @db.Uuid
+  cut_bundle_id              String?                     @db.Uuid
+  inspected_by               String                      @db.Uuid
+  inspection_datetime        DateTime                    @default(now()) @db.Timestamptz(6)
+  quantity_checked           Int
+  tenant                     tenants                     @relation("InlineInspectionTenant", fields: [tenant_id], references: [id])
+  order                      sales_orders                @relation("InlineOrder", fields: [order_id], references: [id])
+  production_line            production_lines            @relation("InlineLine", fields: [production_line_id], references: [id])
+  operation                  operation_bulletin_lines?   @relation("InlineOperation", fields: [operation_bulletin_line_id], references: [id])
+  cut_bundle                 cut_bundles?                @relation("InlineBundle", fields: [cut_bundle_id], references: [id])
+  inspected_by_user          users                       @relation("InlineInspectedBy", fields: [inspected_by], references: [id])
+  defects                    inline_inspection_defects[] @relation("InlineInspectionDefects")
+  rework_orders              rework_orders[]             @relation("ReworkInline")
+}
+
+model inline_inspection_defects {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inline_inspection_id String             @db.Uuid
+  defect_code_id       String             @db.Uuid
+  severity             severity_enum
+  quantity             Int
+  inspection           inline_inspections @relation("InlineInspectionDefects", fields: [inline_inspection_id], references: [id], onDelete: Cascade)
+  defect_code          defect_codes       @relation("InlineDefectCode", fields: [defect_code_id], references: [id])
+}
+
+model endline_inspections {
+  id                 String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id          String                       @db.Uuid
+  production_line_id String                       @db.Uuid
+  order_id           String                       @db.Uuid
+  inspection_date    DateTime                     @db.Date
+  quantity_checked   Int
+  dhu                Decimal                      @db.Decimal(8, 3)
+  inspected_by       String?                      @db.Uuid
+  tenant             tenants                      @relation("EndlineInspectionTenant", fields: [tenant_id], references: [id])
+  production_line    production_lines             @relation("EndlineLine", fields: [production_line_id], references: [id])
+  order              sales_orders                 @relation("EndlineOrder", fields: [order_id], references: [id])
+  inspected_by_user  users?                       @relation("EndlineInspectedBy", fields: [inspected_by], references: [id])
+  defects            endline_inspection_defects[] @relation("EndlineInspectionDefects")
+  rework_orders      rework_orders[]              @relation("ReworkEndline")
+
+  @@unique([production_line_id, order_id, inspection_date])
+}
+
+model endline_inspection_defects {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  endline_inspection_id String              @db.Uuid
+  defect_code_id        String              @db.Uuid
+  severity              severity_enum
+  quantity              Int
+  inspection            endline_inspections @relation("EndlineInspectionDefects", fields: [endline_inspection_id], references: [id], onDelete: Cascade)
+  defect_code           defect_codes        @relation("EndlineDefectCode", fields: [defect_code_id], references: [id])
+}
+
+model aql_sampling_plans {
+  id                 String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id          String                   @db.Uuid
+  name               String                   @db.VarChar(100)
+  standard           String                   @default("ANSI/ASQC Z1.4") @db.VarChar(50)
+  inspection_level   String                   @default("II") @db.VarChar(10)
+  aql_value          Decimal                  @default(2.5) @db.Decimal(5, 2)
+  is_default         Boolean                  @default(false)
+  tenant             tenants                  @relation("AqlPlanTenant", fields: [tenant_id], references: [id])
+  rows               aql_sampling_plan_rows[] @relation("AqlPlanRows")
+  reports            aql_inspection_reports[] @relation("AqlReportPlan")
+  default_for_buyers buyers[]                 @relation("BuyerDefaultAql")
+}
+
+model aql_sampling_plan_rows {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  aql_sampling_plan_id String             @db.Uuid
+  lot_size_min         Int
+  lot_size_max         Int
+  sample_size          Int
+  accept_number        Int
+  reject_number        Int
+  plan                 aql_sampling_plans @relation("AqlPlanRows", fields: [aql_sampling_plan_id], references: [id], onDelete: Cascade)
+}
+
+model aql_inspection_reports {
+  id                     String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id              String                          @db.Uuid
+  order_id               String                          @db.Uuid
+  aql_sampling_plan_id   String                          @db.Uuid
+  lot_size               Int
+  sample_size            Int
+  accept_number          Int
+  reject_number          Int
+  defects_found_critical Int                             @default(0)
+  defects_found_major    Int                             @default(0)
+  defects_found_minor    Int                             @default(0)
+  result                 inspection_result_enum
+  inspected_by           String                          @db.Uuid
+  inspection_date        DateTime                        @db.Date
+  report_attachment_id   String?                         @db.Uuid
+  tenant                 tenants                         @relation("AqlReportTenant", fields: [tenant_id], references: [id])
+  order                  sales_orders                    @relation("AqlReportOrder", fields: [order_id], references: [id])
+  sampling_plan          aql_sampling_plans              @relation("AqlReportPlan", fields: [aql_sampling_plan_id], references: [id])
+  inspected_by_user      users                           @relation("AqlInspectedBy", fields: [inspected_by], references: [id])
+  report_attachment      attachments?                    @relation("AqlReportAttachment", fields: [report_attachment_id], references: [id])
+  cartons                aql_inspection_report_cartons[] @relation("AqlReportCartons")
+  rework_orders          rework_orders[]                 @relation("ReworkAql")
+}
+
+model aql_inspection_report_cartons {
+  aql_inspection_report_id String                 @db.Uuid
+  carton_id                String                 @db.Uuid
+  report                   aql_inspection_reports @relation("AqlReportCartons", fields: [aql_inspection_report_id], references: [id], onDelete: Cascade)
+  carton                   cartons                @relation("AqlReportCarton", fields: [carton_id], references: [id])
+
+  @@id([aql_inspection_report_id, carton_id])
+}
+
+model rework_orders {
+  id                           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                    String                  @db.Uuid
+  source_inspection_stage      inspection_stage_enum
+  source_inline_inspection_id  String?                 @db.Uuid
+  source_endline_inspection_id String?                 @db.Uuid
+  source_aql_report_id         String?                 @db.Uuid
+  defect_code_id               String                  @db.Uuid
+  quantity                     Int
+  assigned_to_employee_id      String?                 @db.Uuid
+  status                       rework_status_enum      @default(pending)
+  rework_completed_date        DateTime?               @db.Date
+  re_inspection_result         inspection_result_enum?
+  tenant                       tenants                 @relation("ReworkTenant", fields: [tenant_id], references: [id])
+  inline_inspection            inline_inspections?     @relation("ReworkInline", fields: [source_inline_inspection_id], references: [id])
+  endline_inspection           endline_inspections?    @relation("ReworkEndline", fields: [source_endline_inspection_id], references: [id])
+  aql_report                   aql_inspection_reports? @relation("ReworkAql", fields: [source_aql_report_id], references: [id])
+  defect_code                  defect_codes            @relation("ReworkDefectCode", fields: [defect_code_id], references: [id])
+  assigned_employee            employees?              @relation("ReworkEmployee", fields: [assigned_to_employee_id], references: [id])
+}
+
+model warehouses {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                @db.Uuid
+  factory_id          String                @db.Uuid
+  name                String                @db.VarChar(100)
+  code                String                @db.VarChar(30)
+  type                warehouse_type_enum
+  is_active           Boolean               @default(true)
+  tenant              tenants               @relation("WarehouseTenant", fields: [tenant_id], references: [id])
+  factory             factories             @relation("WarehouseFactory", fields: [factory_id], references: [id])
+  fabric_issues       fabric_issues[]       @relation("FabricIssueWarehouse")
+  stock_lots          stock_lots[]          @relation("StockLotWarehouse")
+  stock_movements     stock_movements[]     @relation("StockMovementWarehouse")
+  from_transfers      stock_transfers[]     @relation("TransferFromWarehouse")
+  to_transfers        stock_transfers[]     @relation("TransferToWarehouse")
+  stock_adjustments   stock_adjustments[]   @relation("StockAdjustmentWarehouse")
+  goods_receipt_notes goods_receipt_notes[] @relation("GrnWarehouse")
+
+  @@unique([factory_id, code])
+}
+
+model stock_items {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String               @db.Uuid
+  item_type      stock_item_type_enum
+  fabric_id      String?              @db.Uuid
+  trim_id        String?              @db.Uuid
+  style_id       String?              @db.Uuid
+  style_color_id String?              @db.Uuid
+  style_size_id  String?              @db.Uuid
+  sku_code       String               @db.VarChar(100)
+  uom_id         String               @db.Uuid
+  reorder_level  Decimal              @default(0) @db.Decimal(14, 3)
+  reorder_qty    Decimal              @default(0) @db.Decimal(14, 3)
+  costing_method costing_method_enum  @default(weighted_average)
+  tenant         tenants              @relation("StockItemTenant", fields: [tenant_id], references: [id])
+  fabric         fabrics?             @relation("StockItemFabric", fields: [fabric_id], references: [id])
+  trim           trims?               @relation("StockItemTrim", fields: [trim_id], references: [id])
+  style          styles?              @relation("StockItemStyle", fields: [style_id], references: [id])
+  style_color    style_colors?        @relation("StockItemColor", fields: [style_color_id], references: [id])
+  style_size     style_sizes?         @relation("StockItemSize", fields: [style_size_id], references: [id])
+  uom            units_of_measure     @relation("StockItemUom", fields: [uom_id], references: [id])
+  lots           stock_lots[]         @relation("StockItemLots")
+  movements      stock_movements[]    @relation("StockMovementItem")
+  transfers      stock_transfers[]    @relation("StockTransferItem")
+  adjustments    stock_adjustments[]  @relation("StockAdjustmentItem")
+
+  @@unique([tenant_id, sku_code])
+}
+
+model stock_lots {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  stock_item_id      String               @db.Uuid
+  warehouse_id       String               @db.Uuid
+  lot_no             String               @db.VarChar(50)
+  dye_lot            String?              @db.VarChar(50)
+  quantity_on_hand   Decimal              @default(0) @db.Decimal(14, 3)
+  unit_cost          Decimal              @default(0) @db.Decimal(14, 4)
+  received_date      DateTime?            @db.Date
+  stock_item         stock_items          @relation("StockItemLots", fields: [stock_item_id], references: [id])
+  warehouse          warehouses           @relation("StockLotWarehouse", fields: [warehouse_id], references: [id])
+  movements          stock_movements[]    @relation("StockMovementLot")
+  transfers          stock_transfers[]    @relation("StockTransferLot")
+  adjustments        stock_adjustments[]  @relation("StockAdjustmentLot")
+  fabric_issue_items fabric_issue_items[] @relation("FabricIssueItemLot")
+
+  @@unique([stock_item_id, warehouse_id, lot_no])
+}
+
+model stock_movements {
+  id                   String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String                  @db.Uuid
+  stock_item_id        String                  @db.Uuid
+  warehouse_id         String                  @db.Uuid
+  stock_lot_id         String?                 @db.Uuid
+  movement_type        movement_type_enum
+  direction            movement_direction_enum
+  quantity             Decimal                 @db.Decimal(14, 3)
+  source_document_type String                  @db.VarChar(50)
+  source_document_id   String                  @db.Uuid
+  movement_date        DateTime                @default(now()) @db.Timestamptz(6)
+  tenant               tenants                 @relation("StockMovementTenant", fields: [tenant_id], references: [id])
+  stock_item           stock_items             @relation("StockMovementItem", fields: [stock_item_id], references: [id])
+  warehouse            warehouses              @relation("StockMovementWarehouse", fields: [warehouse_id], references: [id])
+  stock_lot            stock_lots?             @relation("StockMovementLot", fields: [stock_lot_id], references: [id])
+
+  @@index([source_document_type, source_document_id])
+}
+
+model stock_transfers {
+  id                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String               @db.Uuid
+  from_warehouse_id String               @db.Uuid
+  to_warehouse_id   String               @db.Uuid
+  stock_item_id     String               @db.Uuid
+  stock_lot_id      String?              @db.Uuid
+  quantity          Decimal              @db.Decimal(14, 3)
+  status            transfer_status_enum @default(in_transit)
+  transfer_date     DateTime             @db.Date
+  received_date     DateTime?            @db.Date
+  tenant            tenants              @relation("StockTransferTenant", fields: [tenant_id], references: [id])
+  from_warehouse    warehouses           @relation("TransferFromWarehouse", fields: [from_warehouse_id], references: [id])
+  to_warehouse      warehouses           @relation("TransferToWarehouse", fields: [to_warehouse_id], references: [id])
+  stock_item        stock_items          @relation("StockTransferItem", fields: [stock_item_id], references: [id])
+  stock_lot         stock_lots?          @relation("StockTransferLot", fields: [stock_lot_id], references: [id])
+}
+
+model stock_adjustments {
+  id               String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String               @db.Uuid
+  stock_item_id    String               @db.Uuid
+  warehouse_id     String               @db.Uuid
+  stock_lot_id     String?              @db.Uuid
+  quantity_delta   Decimal              @db.Decimal(14, 3)
+  reason_code      String               @db.VarChar(50)
+  value_impact     Decimal              @db.Decimal(14, 2)
+  approval_status  approval_status_enum @default(pending)
+  approved_by      String?              @db.Uuid
+  adjustment_date  DateTime             @db.Date
+  tenant           tenants              @relation("StockAdjustmentTenant", fields: [tenant_id], references: [id])
+  stock_item       stock_items          @relation("StockAdjustmentItem", fields: [stock_item_id], references: [id])
+  warehouse        warehouses           @relation("StockAdjustmentWarehouse", fields: [warehouse_id], references: [id])
+  stock_lot        stock_lots?          @relation("StockAdjustmentLot", fields: [stock_lot_id], references: [id])
+  approved_by_user users?               @relation("StockAdjustmentApprovedBy", fields: [approved_by], references: [id])
+}
+
+model suppliers {
+  id                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String               @db.Uuid
+  company_id        String               @db.Uuid
+  name              String               @db.VarChar(200)
+  code              String               @db.VarChar(50)
+  supplier_type     supplier_type_enum   @default(local)
+  contact_person    String?              @db.VarChar(150)
+  email             String?              @db.VarChar(320)
+  phone             String?              @db.VarChar(30)
+  address           String?              @db.VarChar(255)
+  country           String?              @db.VarChar(100)
+  payment_terms     String?              @db.VarChar(200)
+  is_active         Boolean              @default(true)
+  tenant            tenants              @relation("SupplierTenant", fields: [tenant_id], references: [id])
+  company           companies            @relation("SupplierCompany", fields: [company_id], references: [id])
+  materials         supplier_materials[] @relation("SupplierMaterials")
+  default_fabrics   fabrics[]            @relation("FabricDefaultSupplier")
+  default_trims     trims[]              @relation("TrimDefaultSupplier")
+  wash_orders       wash_orders[]        @relation("WashSubcontractor")
+  purchase_orders   purchase_orders[]    @relation("PurchaseOrderSupplier")
+  supplier_invoices supplier_invoices[]  @relation("SupplierInvoiceSupplier")
+  accounts_payable  accounts_payable[]   @relation("PayableSupplier")
+
+  @@unique([tenant_id, code])
+}
+
+model purchase_requisitions {
+  id                String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String                       @db.Uuid
+  factory_id        String                       @db.Uuid
+  requisition_no    String                       @db.VarChar(50)
+  source            requisition_source_enum
+  order_id          String?                      @db.Uuid
+  requested_by      String                       @db.Uuid
+  status            approval_status_enum         @default(pending)
+  approved_by       String?                      @db.Uuid
+  tenant            tenants                      @relation("PurchaseRequisitionTenant", fields: [tenant_id], references: [id])
+  factory           factories                    @relation("PurchaseRequisitionFactory", fields: [factory_id], references: [id])
+  order             sales_orders?                @relation("PurchaseRequisitionOrder", fields: [order_id], references: [id])
+  requested_by_user users                        @relation("PurchaseRequisitionRequestedBy", fields: [requested_by], references: [id])
+  approved_by_user  users?                       @relation("PurchaseRequisitionApprovedBy", fields: [approved_by], references: [id])
+  items             purchase_requisition_items[] @relation("PurchaseRequisitionItems")
+  purchase_orders   purchase_orders[]            @relation("PurchaseOrderRequisition")
+
+  @@unique([tenant_id, requisition_no])
+}
+
+model purchase_requisition_items {
+  id                      String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchase_requisition_id String                @db.Uuid
+  material_type           material_type_enum
+  fabric_id               String?               @db.Uuid
+  trim_id                 String?               @db.Uuid
+  quantity                Decimal               @db.Decimal(14, 3)
+  uom_id                  String                @db.Uuid
+  requisition             purchase_requisitions @relation("PurchaseRequisitionItems", fields: [purchase_requisition_id], references: [id], onDelete: Cascade)
+  fabric                  fabrics?              @relation("PurchaseRequisitionItemFabric", fields: [fabric_id], references: [id])
+  trim                    trims?                @relation("PurchaseRequisitionItemTrim", fields: [trim_id], references: [id])
+  uom                     units_of_measure      @relation("PurchaseRequisitionItemUom", fields: [uom_id], references: [id])
+}
+
+model purchase_orders {
+  id                      String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id               String                 @db.Uuid
+  supplier_id             String                 @db.Uuid
+  purchase_requisition_id String?                @db.Uuid
+  po_no                   String                 @db.VarChar(50)
+  po_date                 DateTime               @db.Date
+  currency                String                 @db.Char(3)
+  delivery_date           DateTime?              @db.Date
+  status                  po_status_enum         @default(draft)
+  tenant                  tenants                @relation("PurchaseOrderTenant", fields: [tenant_id], references: [id])
+  supplier                suppliers              @relation("PurchaseOrderSupplier", fields: [supplier_id], references: [id])
+  requisition             purchase_requisitions? @relation("PurchaseOrderRequisition", fields: [purchase_requisition_id], references: [id])
+  items                   purchase_order_items[] @relation("PurchaseOrderItems")
+  goods_receipts          goods_receipt_notes[]  @relation("GrnPurchaseOrder")
+  invoices                supplier_invoices[]    @relation("SupplierInvoicePurchaseOrder")
+  lc_reference            import_lc_references?  @relation("ImportLcPurchaseOrder")
+
+  @@unique([tenant_id, po_no])
+}
+
+model purchase_order_items {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchase_order_id String                   @db.Uuid
+  material_type     material_type_enum
+  fabric_id         String?                  @db.Uuid
+  trim_id           String?                  @db.Uuid
+  quantity          Decimal                  @db.Decimal(14, 3)
+  unit_price        Decimal                  @db.Decimal(14, 4)
+  uom_id            String                   @db.Uuid
+  quantity_received Decimal                  @default(0) @db.Decimal(14, 3)
+  purchase_order    purchase_orders          @relation("PurchaseOrderItems", fields: [purchase_order_id], references: [id], onDelete: Cascade)
+  fabric            fabrics?                 @relation("PurchaseOrderItemFabric", fields: [fabric_id], references: [id])
+  trim              trims?                   @relation("PurchaseOrderItemTrim", fields: [trim_id], references: [id])
+  uom               units_of_measure         @relation("PurchaseOrderItemUom", fields: [uom_id], references: [id])
+  grn_items         grn_items[]              @relation("GrnPurchaseOrderItem")
+  invoice_items     supplier_invoice_items[] @relation("SupplierInvoiceItemPurchaseOrderItem")
+}
+
+model goods_receipt_notes {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String          @db.Uuid
+  purchase_order_id String          @db.Uuid
+  grn_no            String          @db.VarChar(50)
+  received_date     DateTime        @db.Date
+  warehouse_id      String          @db.Uuid
+  received_by       String?         @db.Uuid
+  tenant            tenants         @relation("GrnTenant", fields: [tenant_id], references: [id])
+  purchase_order    purchase_orders @relation("GrnPurchaseOrder", fields: [purchase_order_id], references: [id])
+  warehouse         warehouses      @relation("GrnWarehouse", fields: [warehouse_id], references: [id])
+  received_by_user  users?          @relation("GrnReceivedBy", fields: [received_by], references: [id])
+  items             grn_items[]     @relation("GrnItems")
+
+  @@unique([tenant_id, grn_no])
+}
+
+model grn_items {
+  id                     String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  goods_receipt_note_id  String               @db.Uuid
+  purchase_order_item_id String               @db.Uuid
+  quantity_received      Decimal              @db.Decimal(14, 3)
+  quantity_accepted      Decimal              @db.Decimal(14, 3)
+  quantity_rejected      Decimal              @default(0) @db.Decimal(14, 3)
+  lot_no                 String               @db.VarChar(50)
+  dye_lot                String?              @db.VarChar(50)
+  receipt                goods_receipt_notes  @relation("GrnItems", fields: [goods_receipt_note_id], references: [id], onDelete: Cascade)
+  purchase_order_item    purchase_order_items @relation("GrnPurchaseOrderItem", fields: [purchase_order_item_id], references: [id])
+}
+
+model supplier_invoices {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String                   @db.Uuid
+  supplier_id       String                   @db.Uuid
+  purchase_order_id String                   @db.Uuid
+  invoice_no        String                   @db.VarChar(50)
+  invoice_date      DateTime                 @db.Date
+  amount            Decimal                  @db.Decimal(14, 2)
+  currency          String                   @db.Char(3)
+  match_status      match_status_enum        @default(pending)
+  tenant            tenants                  @relation("SupplierInvoiceTenant", fields: [tenant_id], references: [id])
+  supplier          suppliers                @relation("SupplierInvoiceSupplier", fields: [supplier_id], references: [id])
+  purchase_order    purchase_orders          @relation("SupplierInvoicePurchaseOrder", fields: [purchase_order_id], references: [id])
+  items             supplier_invoice_items[] @relation("SupplierInvoiceItems")
+  accounts_payable  accounts_payable[]       @relation("PayableInvoice")
+
+  @@unique([supplier_id, invoice_no])
+}
+
+model supplier_invoice_items {
+  id                     String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplier_invoice_id    String               @db.Uuid
+  purchase_order_item_id String               @db.Uuid
+  quantity               Decimal              @db.Decimal(14, 3)
+  unit_price             Decimal              @db.Decimal(14, 4)
+  amount                 Decimal              @db.Decimal(14, 2)
+  invoice                supplier_invoices    @relation("SupplierInvoiceItems", fields: [supplier_invoice_id], references: [id], onDelete: Cascade)
+  purchase_order_item    purchase_order_items @relation("SupplierInvoiceItemPurchaseOrderItem", fields: [purchase_order_item_id], references: [id])
+}
+
+model import_lc_references {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchase_order_id String          @unique @db.Uuid
+  lc_number         String          @db.VarChar(50)
+  lc_bank           String?         @db.VarChar(150)
+  issuing_date      DateTime?       @db.Date
+  shipment_eta      DateTime?       @db.Date
+  status            String          @default("open") @db.VarChar(30)
+  purchase_order    purchase_orders @relation("ImportLcPurchaseOrder", fields: [purchase_order_id], references: [id])
+}
+
+model shipments {
+  id                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                  @db.Uuid
+  factory_id          String                  @db.Uuid
+  order_id            String                  @db.Uuid
+  shipment_no         String                  @db.VarChar(50)
+  booking_date        DateTime                @db.Date
+  vessel_flight       String?                 @db.VarChar(100)
+  ex_factory_date     DateTime?               @db.Date
+  status              shipment_status_enum    @default(booked)
+  tenant              tenants                 @relation("ShipmentTenant", fields: [tenant_id], references: [id])
+  factory             factories               @relation("ShipmentFactory", fields: [factory_id], references: [id])
+  order               sales_orders            @relation("ShipmentOrder", fields: [order_id], references: [id])
+  cartons             shipment_cartons[]      @relation("ShipmentCartonShipment")
+  commercial_invoices commercial_invoices[]   @relation("CommercialInvoiceShipment")
+  packing_list        shipment_packing_lists? @relation("ShipmentPackingList")
+
+  @@unique([tenant_id, shipment_no])
+}
+
+model shipment_cartons {
+  shipment_id String    @db.Uuid
+  carton_id   String    @db.Uuid
+  shipment    shipments @relation("ShipmentCartonShipment", fields: [shipment_id], references: [id], onDelete: Cascade)
+  carton      cartons   @relation("ShipmentCartonCarton", fields: [carton_id], references: [id])
+
+  @@id([shipment_id, carton_id])
+  @@unique([carton_id])
+}
+
+model commercial_invoices {
+  id                  String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                     @db.Uuid
+  shipment_id         String                     @db.Uuid
+  buyer_id            String                     @db.Uuid
+  invoice_no          String                     @db.VarChar(50)
+  invoice_date        DateTime                   @db.Date
+  currency            String                     @db.Char(3)
+  total_amount        Decimal                    @db.Decimal(14, 2)
+  tenant              tenants                    @relation("CommercialInvoiceTenant", fields: [tenant_id], references: [id])
+  shipment            shipments                  @relation("CommercialInvoiceShipment", fields: [shipment_id], references: [id])
+  buyer               buyers                     @relation("CommercialInvoiceBuyer", fields: [buyer_id], references: [id])
+  items               commercial_invoice_items[] @relation("CommercialInvoiceItems")
+  accounts_receivable accounts_receivable[]      @relation("ReceivableInvoice")
+
+  @@unique([tenant_id, invoice_no])
+}
+
+model commercial_invoice_items {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commercial_invoice_id String              @db.Uuid
+  order_line_id         String              @db.Uuid
+  quantity              Int
+  unit_price            Decimal             @db.Decimal(14, 2)
+  amount                Decimal             @db.Decimal(14, 2)
+  invoice               commercial_invoices @relation("CommercialInvoiceItems", fields: [commercial_invoice_id], references: [id], onDelete: Cascade)
+  order_line            order_lines         @relation("CommercialInvoiceItemOrderLine", fields: [order_line_id], references: [id])
+}
+
+model shipment_packing_lists {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shipment_id        String    @unique @db.Uuid
+  format_template_id String?   @db.Uuid
+  generated_at       DateTime  @default(now()) @db.Timestamptz(6)
+  pdf_attachment_id  String?   @db.Uuid
+  shipment           shipments @relation("ShipmentPackingList", fields: [shipment_id], references: [id])
+}
+
+model currencies {
+  code                String           @id @db.Char(3)
+  name                String           @db.VarChar(50)
+  symbol              String?          @db.VarChar(5)
+  exchange_rates_from exchange_rates[] @relation("ExchangeRateFrom")
+  exchange_rates_to   exchange_rates[] @relation("ExchangeRateTo")
+}
+
+model exchange_rates {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String     @db.Uuid
+  from_currency     String     @db.Char(3)
+  to_currency       String     @db.Char(3)
+  rate              Decimal    @db.Decimal(18, 8)
+  effective_date    DateTime   @db.Date
+  source            String?    @db.VarChar(50)
+  tenant            tenants    @relation("ExchangeRateTenant", fields: [tenant_id], references: [id])
+  from_currency_ref currencies @relation("ExchangeRateFrom", fields: [from_currency], references: [code])
+  to_currency_ref   currencies @relation("ExchangeRateTo", fields: [to_currency], references: [code])
+
+  @@unique([tenant_id, from_currency, to_currency, effective_date])
+}
+
+model chart_of_accounts {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String              @db.Uuid
+  company_id        String              @db.Uuid
+  account_code      String              @db.VarChar(20)
+  account_name      String              @db.VarChar(150)
+  account_type      account_type_enum
+  parent_account_id String?             @db.Uuid
+  is_active         Boolean             @default(true)
+  tenant            tenants             @relation("AccountTenant", fields: [tenant_id], references: [id])
+  company           companies           @relation("AccountCompany", fields: [company_id], references: [id])
+  parent_account    chart_of_accounts?  @relation("AccountHierarchy", fields: [parent_account_id], references: [id])
+  child_accounts    chart_of_accounts[] @relation("AccountHierarchy")
+  journal_lines     journal_lines[]     @relation("JournalLineAccount")
+
+  @@unique([company_id, account_code])
+}
+
+model journals {
+  id               String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String              @db.Uuid
+  company_id       String              @db.Uuid
+  journal_no       String              @db.VarChar(50)
+  journal_date     DateTime            @db.Date
+  source_type      journal_source_enum
+  source_id        String?             @db.Uuid
+  status           journal_status_enum @default(draft)
+  created_by       String?             @db.Uuid
+  approved_by      String?             @db.Uuid
+  tenant           tenants             @relation("JournalTenant", fields: [tenant_id], references: [id])
+  company          companies           @relation("JournalCompany", fields: [company_id], references: [id])
+  created_by_user  users?              @relation("JournalCreatedBy", fields: [created_by], references: [id])
+  approved_by_user users?              @relation("JournalApprovedBy", fields: [approved_by], references: [id])
+  lines            journal_lines[]     @relation("JournalLines")
+
+  @@unique([company_id, journal_no])
+}
+
+model journal_lines {
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  journal_id    String            @db.Uuid
+  account_id    String            @db.Uuid
+  debit_amount  Decimal           @default(0) @db.Decimal(14, 2)
+  credit_amount Decimal           @default(0) @db.Decimal(14, 2)
+  currency      String            @db.Char(3)
+  exchange_rate Decimal           @default(1) @db.Decimal(18, 8)
+  description   String?           @db.Text
+  journal       journals          @relation("JournalLines", fields: [journal_id], references: [id], onDelete: Cascade)
+  account       chart_of_accounts @relation("JournalLineAccount", fields: [account_id], references: [id])
+}
+
+model accounts_payable {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                @db.Uuid
+  supplier_id         String                @db.Uuid
+  supplier_invoice_id String                @db.Uuid
+  amount_due          Decimal               @db.Decimal(14, 2)
+  amount_paid         Decimal               @default(0) @db.Decimal(14, 2)
+  due_date            DateTime              @db.Date
+  status              ap_ar_status_enum     @default(open)
+  tenant              tenants               @relation("PayableTenant", fields: [tenant_id], references: [id])
+  supplier            suppliers             @relation("PayableSupplier", fields: [supplier_id], references: [id])
+  supplier_invoice    supplier_invoices     @relation("PayableInvoice", fields: [supplier_invoice_id], references: [id])
+  allocations         payment_allocations[] @relation("PayableAllocation")
+}
+
+model accounts_receivable {
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id             String                @db.Uuid
+  buyer_id              String                @db.Uuid
+  commercial_invoice_id String                @db.Uuid
+  amount_due            Decimal               @db.Decimal(14, 2)
+  amount_paid           Decimal               @default(0) @db.Decimal(14, 2)
+  due_date              DateTime              @db.Date
+  status                ap_ar_status_enum     @default(open)
+  tenant                tenants               @relation("ReceivableTenant", fields: [tenant_id], references: [id])
+  buyer                 buyers                @relation("ReceivableBuyer", fields: [buyer_id], references: [id])
+  commercial_invoice    commercial_invoices   @relation("ReceivableInvoice", fields: [commercial_invoice_id], references: [id])
+  allocations           payment_allocations[] @relation("ReceivableAllocation")
+}
+
+model payments {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String            @db.Uuid
+  payment_type   payment_type_enum
+  party_type     party_type_enum
+  party_id       String            @db.Uuid
+  amount         Decimal           @db.Decimal(14, 2)
+  currency       String            @db.Char(3)
+  payment_date   DateTime          @db.Date
+  payment_method String?           @db.VarChar(50)
+  reference_no   String?           @db.VarChar(100)
+  tenant         tenants           @relation("PaymentTenant", fields: [tenant_id], references: [id])
+}
+
+model payment_allocations {
+  id                     String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payment_id             String               @db.Uuid
+  accounts_payable_id    String?              @db.Uuid
+  accounts_receivable_id String?              @db.Uuid
+  allocated_amount       Decimal              @db.Decimal(14, 2)
+  payable                accounts_payable?    @relation("PayableAllocation", fields: [accounts_payable_id], references: [id])
+  receivable             accounts_receivable? @relation("ReceivableAllocation", fields: [accounts_receivable_id], references: [id])
+}
+
+model order_costings {
+  id                      String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id                String       @unique @db.Uuid
+  estimated_material_cost Decimal      @default(0) @db.Decimal(14, 2)
+  actual_material_cost    Decimal      @default(0) @db.Decimal(14, 2)
+  estimated_labor_cost    Decimal      @default(0) @db.Decimal(14, 2)
+  actual_labor_cost       Decimal      @default(0) @db.Decimal(14, 2)
+  overhead_allocated      Decimal      @default(0) @db.Decimal(14, 2)
+  total_actual_cost       Decimal      @default(0) @db.Decimal(14, 2)
+  margin_actual_pct       Decimal?     @db.Decimal(6, 3)
+  calculated_at           DateTime     @default(now()) @db.Timestamptz(6)
+  order                   sales_orders @relation("OrderCosting", fields: [order_id], references: [id])
+}
+
+model employees {
+  id                  String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String                     @db.Uuid
+  company_id          String                     @db.Uuid
+  factory_id          String                     @db.Uuid
+  department_id       String                     @db.Uuid
+  user_id             String?                    @db.Uuid
+  employee_code       String                     @db.VarChar(30)
+  full_name           String                     @db.VarChar(150)
+  designation         String?                    @db.VarChar(100)
+  wage_type           wage_type_enum
+  date_of_joining     DateTime                   @db.Date
+  statutory_id        String?                    @db.VarChar(50)
+  status              user_status_enum           @default(active)
+  tenant              tenants                    @relation("EmployeeTenant", fields: [tenant_id], references: [id])
+  company             companies                  @relation("EmployeeCompany", fields: [company_id], references: [id])
+  factory             factories                  @relation("EmployeeFactory", fields: [factory_id], references: [id])
+  department          departments                @relation("EmployeeDepartment", fields: [department_id], references: [id])
+  user                users?                     @relation("EmployeeUser", fields: [user_id], references: [id])
+  balance_assignments line_balance_assignments[] @relation("BalanceAssignmentEmployee")
+  bundle_scans        bundle_scans[]             @relation("BundleScanEmployee")
+  piece_rate_outputs  piece_rate_outputs[]       @relation("PieceRateEmployee")
+  rework_orders       rework_orders[]            @relation("ReworkEmployee")
+  leave_applications  leave_applications[]       @relation("LeaveApplicationEmployee")
+  leave_balances      leave_balances[]           @relation("LeaveBalanceEmployee")
+  salary_structures   salary_structures[]        @relation("SalaryStructureEmployee")
+
+  @@unique([tenant_id, employee_code])
+}
+
+model attendance {
+  id               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String                 @db.Uuid
+  employee_id      String                 @db.Uuid
+  attendance_date  DateTime               @db.Date
+  check_in         DateTime?              @db.Timestamptz(6)
+  check_out        DateTime?              @db.Timestamptz(6)
+  source           attendance_source_enum @default(manual)
+  overtime_minutes Int                    @default(0)
+  status           attendance_status_enum @default(present)
+  tenant           tenants                @relation("AttendanceTenant", fields: [tenant_id], references: [id])
+
+  @@unique([employee_id, attendance_date])
+}
+
+model leave_types {
+  id                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String               @db.Uuid
+  name              String               @db.VarChar(50)
+  max_days_per_year Int?                 @db.SmallInt
+  is_paid           Boolean              @default(true)
+  tenant            tenants              @relation("LeaveTypeTenant", fields: [tenant_id], references: [id])
+  applications      leave_applications[] @relation("LeaveTypeApplication")
+  balances          leave_balances[]     @relation("LeaveTypeBalance")
+
+  @@unique([tenant_id, name])
+}
+
+model leave_applications {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employee_id      String            @db.Uuid
+  leave_type_id    String            @db.Uuid
+  start_date       DateTime          @db.Date
+  end_date         DateTime          @db.Date
+  days_count       Decimal           @db.Decimal(5, 1)
+  reason           String?           @db.Text
+  status           leave_status_enum @default(pending)
+  approved_by      String?           @db.Uuid
+  employee         employees         @relation("LeaveApplicationEmployee", fields: [employee_id], references: [id])
+  leave_type       leave_types       @relation("LeaveTypeApplication", fields: [leave_type_id], references: [id])
+  approved_by_user users?            @relation("LeaveApprovedBy", fields: [approved_by], references: [id])
+}
+
+model leave_balances {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employee_id   String      @db.Uuid
+  leave_type_id String      @db.Uuid
+  year          Int         @db.SmallInt
+  entitled_days Decimal     @db.Decimal(5, 1)
+  used_days     Decimal     @default(0) @db.Decimal(5, 1)
+  balance_days  Decimal     @db.Decimal(5, 1)
+  employee      employees   @relation("LeaveBalanceEmployee", fields: [employee_id], references: [id])
+  leave_type    leave_types @relation("LeaveTypeBalance", fields: [leave_type_id], references: [id])
+
+  @@unique([employee_id, leave_type_id, year])
+}
+
+model salary_structures {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employee_id    String         @db.Uuid
+  effective_date DateTime       @db.Date
+  basic_salary   Decimal        @default(0) @db.Decimal(14, 2)
+  allowances     Json?
+  wage_type      wage_type_enum
+  employee       employees      @relation("SalaryStructureEmployee", fields: [employee_id], references: [id])
+
+  @@unique([employee_id, effective_date])
+}
+
+model payroll_runs {
+  id               String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String              @db.Uuid
+  factory_id       String              @db.Uuid
+  pay_period_start DateTime            @db.Date
+  pay_period_end   DateTime            @db.Date
+  status           payroll_status_enum @default(draft)
+  run_date         DateTime            @db.Date
+  approved_by      String?             @db.Uuid
+  tenant           tenants             @relation("PayrollTenant", fields: [tenant_id], references: [id])
+  factory          factories           @relation("PayrollFactory", fields: [factory_id], references: [id])
+  approved_by_user users?              @relation("PayrollApprovedBy", fields: [approved_by], references: [id])
+
+  @@unique([factory_id, pay_period_start, pay_period_end])
+}
+
+model payslips {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payroll_run_id    String   @db.Uuid
+  employee_id       String   @db.Uuid
+  base_wage         Decimal  @default(0) @db.Decimal(14, 2)
+  overtime_amount   Decimal  @default(0) @db.Decimal(14, 2)
+  incentive_amount  Decimal  @default(0) @db.Decimal(14, 2)
+  gross_pay         Decimal  @db.Decimal(14, 2)
+  deductions_amount Decimal  @default(0) @db.Decimal(14, 2)
+  net_pay           Decimal  @db.Decimal(14, 2)
+  generated_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([payroll_run_id, employee_id])
+}
+
+model payslip_lines {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payslip_id     String              @db.Uuid
+  component_type component_type_enum
+  component_name String              @db.VarChar(100)
+  amount         Decimal             @db.Decimal(14, 2)
+}
+
+model compliance_schemes {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id String  @db.Uuid
+  name      String  @db.VarChar(100)
+  tenant    tenants @relation("ComplianceSchemeTenant", fields: [tenant_id], references: [id])
+
+  @@unique([tenant_id, name])
+}
+
+model compliance_audits {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String    @db.Uuid
+  factory_id           String    @db.Uuid
+  compliance_scheme_id String    @db.Uuid
+  auditor_name         String?   @db.VarChar(150)
+  audit_date           DateTime  @db.Date
+  score                Decimal?  @db.Decimal(6, 2)
+  grade                String?   @db.VarChar(20)
+  findings_summary     String?   @db.Text
+  status               String    @default("completed") @db.VarChar(20)
+  tenant               tenants   @relation("ComplianceAuditTenant", fields: [tenant_id], references: [id])
+  factory              factories @relation("ComplianceAuditFactory", fields: [factory_id], references: [id])
+}
+
+model corrective_action_plans {
+  id                             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  compliance_audit_id            String          @db.Uuid
+  finding_description            String          @db.Text
+  owner_employee_id              String          @db.Uuid
+  due_date                       DateTime        @db.Date
+  status                         cap_status_enum @default(open)
+  closure_evidence_attachment_id String?         @db.Uuid
+}
+
+model certificates {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String    @db.Uuid
+  factory_id       String    @db.Uuid
+  certificate_type String    @db.VarChar(50)
+  issuing_body     String?   @db.VarChar(150)
+  scope            String?   @db.Text
+  valid_from       DateTime  @db.Date
+  valid_to         DateTime  @db.Date
+  attachment_id    String?   @db.Uuid
+  tenant           tenants   @relation("CertificateTenant", fields: [tenant_id], references: [id])
+  factory          factories @relation("CertificateFactory", fields: [factory_id], references: [id])
+}
+
+model compliance_documents {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  related_entity_type String @db.VarChar(30)
+  related_entity_id   String @db.Uuid
+  attachment_id       String @db.Uuid
+}
+
+model attachments {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String                   @db.Uuid
+  entity_type       String                   @db.VarChar(50)
+  entity_id         String                   @db.Uuid
+  file_name         String                   @db.VarChar(255)
+  storage_key       String                   @db.Text
+  mime_type         String                   @db.VarChar(100)
+  size_bytes        BigInt
+  uploaded_by       String                   @db.Uuid
+  uploaded_at       DateTime                 @default(now()) @db.Timestamptz(6)
+  virus_scan_status String                   @default("pending") @db.VarChar(20)
+  tenant            tenants                  @relation("AttachmentTenant", fields: [tenant_id], references: [id])
+  uploaded_by_user  users                    @relation("AttachmentUploadedBy", fields: [uploaded_by], references: [id])
+  tech_packs        tech_packs[]             @relation("TechPackAttachment")
+  aql_reports       aql_inspection_reports[] @relation("AqlReportAttachment")
+
+  @@index([entity_type, entity_id])
+}
+
+model notifications {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id           String   @db.Uuid
+  user_id             String   @db.Uuid
+  notification_type   String   @db.VarChar(50)
+  title               String   @db.VarChar(200)
+  body                String?  @db.Text
+  related_entity_type String?  @db.VarChar(50)
+  related_entity_id   String?  @db.Uuid
+  is_read             Boolean  @default(false)
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  tenant              tenants  @relation("NotificationTenant", fields: [tenant_id], references: [id])
+  user                users    @relation("NotificationUser", fields: [user_id], references: [id])
+}
+
+model rag_documents {
+  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id            String                @db.Uuid
+  source_type          String                @db.VarChar(50)
+  source_attachment_id String?               @db.Uuid
+  content_chunk        String                @db.Text
+  embedding            Unsupported("vector")
+  created_at           DateTime              @default(now()) @db.Timestamptz(6)
+  tenant               tenants               @relation("RagTenant", fields: [tenant_id], references: [id])
+}
+
+model ai_tool_call_logs {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id      String   @db.Uuid
+  user_id        String   @db.Uuid
+  tool_name      String   @db.VarChar(100)
+  arguments      Json
+  result_summary Json?
+  called_at      DateTime @default(now()) @db.Timestamptz(6)
+  tenant         tenants  @relation("AiLogTenant", fields: [tenant_id], references: [id])
+  user           users    @relation("AiLogUser", fields: [user_id], references: [id])
+}
